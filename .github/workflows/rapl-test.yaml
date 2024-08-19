@@ -27,7 +27,7 @@ jobs:
 
 
       - name: 'Run the submission'
-        run: run.sh     
+        run: sh -e run.sh     
 
       - name: Submission Measurement
         uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
