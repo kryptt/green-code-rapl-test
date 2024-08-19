@@ -1,0 +1,18 @@
+name: Test Scaphandre
+on:
+  pull_request:
+    branches:
+      - main
+jobs:
+  scaphandre:
+    runs-on: [ubuntu-latest]
+    name: Tests Scaphandre
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
+      - name: List rapl modules
+        run: lsmod | grep rapl || true
+      - name: Try installing rapl module
+        run: modprobe intel_rapl_common
+      - name: Run scaphandre
+        run: docker run -v /sys/class/powercap:/sys/class/powercap -v /proc:/proc hubblo/scaphandre stdout -t 15
