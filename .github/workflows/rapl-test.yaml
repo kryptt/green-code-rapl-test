@@ -25,36 +25,6 @@ jobs:
           label: 'repo checkout'
         # continue-on-error: true # recommended setting for production. See notes below.
 
-      - name: setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
-
-      - name: pip install
-        shell: bash
-        run: |
-          pip install -r requirements.txt
-
-      - name: Setup Python Measurment
-        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
-        with:
-          task: get-measurement
-          label: 'python setup'
-        # continue-on-error: true # recommended setting for production. See notes below.
-
-      - name: Run Tests
-        shell: bash
-        run: |
-          pytest
-
-      - name: Tests measurement
-        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
-        with:
-          task: get-measurement
-          label: 'pytest'
-        # continue-on-error: true # recommended setting for production. See notes below.
-
       - name: Show Energy Results
         uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
         with:
