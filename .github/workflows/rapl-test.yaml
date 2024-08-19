@@ -3,16 +3,63 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
-  scaphandre:
-    runs-on: [ubuntu-latest]
-    name: Tests Scaphandre
+  run-tests:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout 
-        uses: actions/checkout@v2 # Required to mount the Github Workspace to a volume 
-      - name: List rapl modules
-        run: lsmod | grep rapl || true
-      - name: Try installing rapl module
-        run: modprobe intel_rapl_common
-      - name: Run scaphandre
-        run: docker run -v /sys/class/powercap:/sys/class/powercap -v /proc:/proc hubblo/scaphandre stdout -t 15
+      - name: Start Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
+        with:
+          task: start-measurement
+        # continue-on-error: true # recommended setting for production. See notes below.
+
+
+      - name: 'Checkout repository'
+        uses: actions/checkout@v3
+        with:
+          ref: 'dev'
+          submodules: 'true'
+
+      - name: Checkout Repo Measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
+        with:
+          task: get-measurement
+          label: 'repo checkout'
+        # continue-on-error: true # recommended setting for production. See notes below.
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: pip install
+        shell: bash
+        run: |
+          pip install -r requirements.txt
+
+      - name: Setup Python Measurment
+        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
+        with:
+          task: get-measurement
+          label: 'python setup'
+        # continue-on-error: true # recommended setting for production. See notes below.
+
+      - name: Run Tests
+        shell: bash
+        run: |
+          pytest
+
+      - name: Tests measurement
+        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
+        with:
+          task: get-measurement
+          label: 'pytest'
+        # continue-on-error: true # recommended setting for production. See notes below.
+
+      - name: Show Energy Results
+        uses: green-coding-solutions/eco-ci-energy-estimation@v3 # use hash or @vX here (See note below)
+        with:
+          task: display-results
+        # continue-on-error: true # recommended setting for production. See notes below.
